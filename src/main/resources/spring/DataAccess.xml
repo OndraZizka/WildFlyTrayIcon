@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+
+  <!-- JDBC Datasource -->
+  <bean id="simpleDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <property name="driverClassName" value="${jdbc.driver}" />
+    <property name="url" value="${jdbc.url}" />
+    <property name="username" value="${jdbc.username}" />
+    <property name="password" value="${jdbc.password}" />
+  </bean>
+
+
+  <!-- Transaction manager for iBATIS. Not needed. iBatis has <transactionManager type="EXTERNAL"/> -->
+  <bean id="dataSourceTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="simpleDataSource"/>
+  </bean>
+  <!--
+  -->
+
+  <!-- iBatis -->
+  <!-- http://static.springframework.org/spring/docs/2.5.x/reference/orm.html#orm-ibatis  -->
+  <bean id="sqlMap" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+    <property name="dataSource" ref="simpleDataSource"/>
+    <property name="configLocation" value="ibatis/iBatisConfig.xml"/>
+  </bean>
+  <alias alias="iBatis" name="sqlMap"/>
+
+
+
+
+
+
+  <!-- Transaction by AOP -->
+  <aop:config>
+    <!-- DAO -->
+    <aop:pointcut id="daoServiceMethods" expression="execution(* cz.pohlidame.monitor.dao.*.*(..))"/>
+    
+    <aop:advisor advice-ref="txAdvice" pointcut-ref="daoServiceMethods"/>
+  </aop:config>
+
+
+  <tx:advice id="txAdvice" transaction-manager="dataSourceTransactionManager">
+    <tx:attributes>
+      <!-- all methods starting with 'get' are read-only -->
+      <tx:method name="get*" read-only="true"/>
+      <!-- other methods use the default transaction settings (see below) -->
+      <tx:method name="*"/> <!--  propagation="REQUIRED" - default -->
+    </tx:attributes>
+  </tx:advice>
+
+
+
+    
+</beans>

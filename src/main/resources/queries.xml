@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+   Self-documenting.
+-->
+
+<queries>
+   <query desc="Událostí celkem"> SELECT COUNT(*) FROM dm_ws_archiv d </query>
+   <query desc="Poslední událost"> SELECT MAX(id) FROM dm_ws_archiv d </query>
+   <query desc="Spisů celkem"> SELECT COUNT(*) FROM isir_spisy </query>
+   <query desc="Uživatelů celkem"> SELECT COUNT(*) FROM isir_sled_users </query>
+   <query desc="Vzorů celkem"> SELECT COUNT(*) FROM poh_users_vzory </query>
+
+   <query desc="Událostí dnes"> SELECT COUNT(*) FROM dm_ws_archiv d WHERE DATE(cas) = CURDATE() </query>
+   <query desc="Nových spisů dnes"> SELECT COUNT(DISTINCT sp.znacka) FROM dm_ws_archiv ud LEFT JOIN isir_spisy sp ON ud.spis = sp.znacka WHERE DATE(ud.cas) = CURDATE() </query>
+   <query desc="Nových uživatelů dnes"> SELECT COUNT(*) FROM isir_sled_users WHERE DATE(zalozen) = CURDATE() </query>
+</queries>
